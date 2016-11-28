@@ -32,14 +32,15 @@ describe LanguageServiceApi do
       lambda { |*args| public_send(name_symbol, *args) }
     end
 
-    # TODO: Instead of mock_client, pass a block that verifies the host string
-    # and that the 2nd argument isn't :this_channel_is_insecure
     LanguageService::Stub.stub(:new, mock_client) { yield(mock_client) }
   end
 
   describe "#analyze_sentiment" do
     it "forwards calls to LanguageService::Stub" do
       stub_grpc_client do |mock_client|
+        Document = Google::Cloud::Language::V1beta1::Document
+        LanguageServiceApi = Google::Cloud::Language::V1beta1::LanguageServiceApi
+
         expected_request = AnalyzeSentimentRequest.new(
           document: Document.new,
         )
@@ -58,6 +59,8 @@ describe LanguageServiceApi do
 
         # Verification:
         response.must_equal mocked_response
+
+
       end
     end
   end
@@ -65,6 +68,11 @@ describe LanguageServiceApi do
   describe "#analyze_entities" do
     it "forwards calls to LanguageService::Stub" do
       stub_grpc_client do |mock_client|
+
+        Document = Google::Cloud::Language::V1beta1::Document
+        EncodingType = Google::Cloud::Language::V1beta1::EncodingType
+        LanguageServiceApi = Google::Cloud::Language::V1beta1::LanguageServiceApi
+
         expected_request = AnalyzeEntitiesRequest.new(
           document: Document.new,
           encoding_type: EncodingType::NONE,
@@ -85,6 +93,7 @@ describe LanguageServiceApi do
 
         # Verification:
         response.must_equal mocked_response
+
       end
     end
   end
@@ -92,9 +101,16 @@ describe LanguageServiceApi do
   describe "#annotate_text" do
     it "forwards calls to LanguageService::Stub" do
       stub_grpc_client do |mock_client|
+
+
+        Document = Google::Cloud::Language::V1beta1::Document
+        EncodingType = Google::Cloud::Language::V1beta1::EncodingType
+        Features = Google::Cloud::Language::V1beta1::AnnotateTextRequest::Features
+        LanguageServiceApi = Google::Cloud::Language::V1beta1::LanguageServiceApi
+
         expected_request = AnnotateTextRequest.new(
           document: Document.new,
-          features: AnnotateTextRequest::Features.new,
+          features: Features.new,
           encoding_type: EncodingType::NONE,
         )
 
@@ -106,14 +122,9 @@ describe LanguageServiceApi do
           [expected_request, Hash],
         )
 
-        # From the sample:
-        # TODO(jcanizales): Initialize enums with the second value, strings with
-        # "sample", arrays with 1 element, etc. Do the same with the mocked
-        # response.
-        # TODO(jcanizales): Rename to "api" in the sample?
         language_service_api = LanguageServiceApi.new
         document = Document.new
-        features = AnnotateTextRequest::Features.new
+        features = Features.new
         encoding_type = EncodingType::NONE
         response = language_service_api.annotate_text(document, features, encoding_type)
 
@@ -122,4 +133,5 @@ describe LanguageServiceApi do
       end
     end
   end
+
 end
